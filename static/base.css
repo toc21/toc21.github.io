@@ -1,0 +1,192 @@
+html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    background: #EEE;
+    display: grid;
+    grid-gap: 1em;
+    grid:
+        "header header header" 12em
+        ". main ." 1fr
+        "footer footer footer" 0em
+        / minmax(0, 1fr) minmax(0, 50em) minmax(0,1fr);
+}
+
+header {
+    background: #444;
+    color: white;
+    grid-area: header;
+    padding: 0 calc(50% - 25em);
+    margin: 0;
+}
+
+header h1 {
+    font-size: 2em;
+}
+
+header a {
+    color: white;
+    padding: 0.2em 0.5em;
+}
+
+header span {
+    color: white;
+    background: #222;
+    padding: 0.2em 0.5em;
+    border-radius: 0.5em;
+}
+
+header a:link {
+    text-decoration: none;
+}
+
+header nav {
+    margin: 0;
+    padding: 0;
+}
+
+header nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+header nav ul li {
+    display: inline;
+    margin: 0;
+}
+
+main {
+    margin: -4em 0 0;
+    padding: 0;
+    grid-area: main;
+}
+
+main>article {
+    background: white;
+    padding: 1em 2em;
+    margin: 0 0 1em;
+    box-shadow: 0.2em 0.2em 0.2em #444;
+    border-radius: 0.2em;
+}
+
+main>nav {
+    text-align: center;
+}
+
+main>nav a:link {
+    text-decoration: none;
+}
+
+main>nav a, main>nav span {
+    color: black;
+    margin: 0 0.2em;
+    padding: 0.2em 0.5em;
+}
+
+main>nav span {
+    background: #444;
+    color: white;
+}
+
+footer {
+    background: #444;
+    color: white;
+    grid-area: footer;
+    padding: 1em calc(50% - 25em);
+}
+
+article aside a.tag:link {
+    text-decoration: none;
+}
+
+article aside .tag {
+    font-size: 0.8em;
+    color: #444;
+    background: #EEE;
+    border: 1px solid #444;
+    padding: 0.25em 0.75em;
+    border-radius: 0.5em;
+    margin: 0 0.25em;
+}
+
+article h1 a {
+    color: #000;
+}
+
+article h1 a:link {
+    text-decoration: none;
+}
+
+article aside {
+    margin: 1em 0 0 0;
+}
+
+article span.new {
+    color: firebrick;
+    text-decoration: underline;
+}
+
+@media screen and (max-width: 50em) {
+    body {
+        grid:
+            "header header header" 4em
+            ". main ." 1fr
+            "footer footer footer" 10em
+            / minmax(0, 1fr) minmax(0, 50em) minmax(0,1fr);
+    }
+
+    header {
+        padding: 1em;
+    }
+
+    header h1 {
+        display: none;
+    }
+
+    main {
+        margin: 0;
+    }
+}
+
+@media screen and (min-width: 76em) {
+    article aside {
+        margin: 0 0 0 -16rem;
+        /* position: fixed; */
+        width: 12rem;
+        padding: 0 1rem;
+        text-align: right;
+        float: left;
+    }
+
+    article aside .tag {
+        margin: 0.5em;
+        display: inline-block;
+    }
+}
+
+$(
+from pygments.formatters import HtmlFormatter
+formatter = HtmlFormatter(linenos=True)
+)
+$formatter.get_style_defs('.codehilite')
+
+.codehilitetable {
+    background: #f8f8f8;
+    padding: 0.5em 1em;
+    margin: 0;
+    width: 100%;
+}
+
+pre {
+    margin: 0;
+    padding: 0;
+}

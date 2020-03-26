@@ -1,0 +1,61 @@
+$extends("templates/base.html")
+$require(entries)
+
+$def title():
+Archive
+$if 'date__month' in values:
+${"%d/%02d"%(values["date__year"], values["date__month"])}
+$elif 'date__year' in values:
+${"%d"%(values['date__year'],)}
+$end
+$end
+
+$def content():
+
+$for entry in entries:
+<article>
+<h1><a href="$urls.build('article', {'date__year': entry['date__year'], 'date__month': entry['date__month'], 'slug': entry['slug']})">$entry["title"]</a></h1>
+
+$entry["date"]
+
+$(
+tags = db.select(
+'''
+SELECT tag.*
+FROM json_each({}) as tags
+JOIN source as tag
+ON tags.value = json_extract(tag.metadata, '$.slug')
+AND json_extract(tag.metadata, '$.type') = 'page'
+''',
+json.dumps(entry["tags"]))
+tag_slugs = [tag["slug"] for tag in tags]
+)
+
+<aside>
+$for tag in tags:
+<a class="tag" href="$urls.build('page', {'slug': tag['slug']})">$tag["title"]</a>
+$end
+$for tag in entry["tags"]:
+$if tag not in tag_slugs:
+<span class="tag">$tag</span>
+$( warn(f"{entry.filename}: tag {tag!r} not found") )
+$end
+$end
+</aside>
+
+$entry.content.split('<!-- more -->', 1)[0]
+
+<a href="$urls.build('article', {'date__year': entry['date__year'], 'date__month': entry['date__month'], 'slug': entry['slug']})">阅读全文</a>
+</article>
+$end
+
+<nav>
+$for page in range(max(1, entries.page-3), min(entries.page+3, entries.num_pages)+1):
+$if page == entries.page:
+<span>${page!!s}</span>
+$else:
+<a href="$urls.build(endpoint, dict(**values, page=page))">${page!!s}</a>
+$end
+$end
+</nav>
+$end

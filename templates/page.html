@@ -1,0 +1,109 @@
+$extends("templates/base.html")
+$require(entry)
+
+$def title():
+$entry["title"]
+$end
+
+
+$(
+pages = db.select("""
+SELECT page.*
+FROM source AS page
+WHERE json_extract(page.metadata, '$.type') = 'page'
+AND {} IN (SELECT value FROM json_each(page.metadata, '$.tags'))
+""", entry["slug"])
+)
+
+$(
+articles = db.select("""
+SELECT article.*
+FROM source AS article
+WHERE json_extract(article.metadata, '$.type') = 'article'
+AND {} IN (SELECT value FROM json_each(article.metadata, '$.tags'))
+""", entry["slug"])
+)
+
+$def content():
+<article>
+<h1>$entry["title"]</h1>
+
+$(
+tags = db.select(
+'''
+SELECT tag.*
+FROM json_each({}) as tags
+JOIN source as tag
+ON tags.value = json_extract(tag.metadata, '$.slug')
+AND json_extract(tag.metadata, '$.type') = 'page'
+''',
+json.dumps(entry["tags"]))
+tag_slugs = [tag["slug"] for tag in tags]
+)
+
+<aside>
+$for tag in tags:
+<a class="tag" href="$urls.build('page', {'slug': tag['slug']})">$tag["title"]</a>
+$end
+$for tag in entry["tags"]:
+$if tag not in tag_slugs:
+<span class="tag">$tag</span>
+$( warn(f"{entry.filename}: tag {tag!r} not found") )
+$end
+$end
+</aside>
+
+$entry.content
+
+$if pages:
+<h2>相关</h2>
+<ul>
+$for page in pages:
+<li><a href="$urls.build('page', {'slug': page['slug']})">$page["title"]</a></li>
+$end
+</ul>
+$end
+</article>
+
+$if articles:
+<article>
+$for article in articles:
+<h1><a href="$urls.build('article', {'date__year': article['date__year'], 'date__month': article['date__month'], 'slug': article['slug']})">$article["title"]</a></h1>
+
+$article["date"]
+
+$(
+tags = db.select(
+'''
+SELECT tag.*
+FROM json_each({}) as tags
+JOIN source as tag
+ON tags.value = json_extract(tag.metadata, '$.slug')
+AND json_extract(tag.metadata, '$.type') = 'page'
+''',
+json.dumps(article["tags"]))
+tag_slugs = [tag["slug"] for tag in tags]
+)
+
+<aside>
+$for tag in tags:
+$if tag['slug'] != entry['slug']:
+<a class="tag" href="$urls.build('page', {'slug': tag['slug']})">$tag["title"]</a>
+$end
+$end
+$for tag in article["tags"]:
+$if tag not in tag_slugs:
+<span class="tag">$tag</span>
+$( warn(f"{entry.filename}: tag {tag!r} not found") )
+$end
+$end
+</aside>
+
+$article.content.split('<!-- more -->', 1)[0]
+
+<a href="$urls.build('article', {'date__year': article['date__year'], 'date__month': article['date__month'], 'slug': article['slug']})">阅读全文</a>
+$end
+</article>
+$end
+
+$end

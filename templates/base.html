@@ -1,0 +1,41 @@
+$(
+is_home = urls.current_url() == urls.build("article_list", {})
+)
+<!doctype html>
+<html>
+<head>
+$def title():
+$end
+<title>
+$if not is_home:
+$title() -
+$end
+$config.SITENAME</title>
+<link rel="stylesheet" href="$urls.build('css', {'slug': 'base'})" type="text/css" />
+</head>
+<body>
+<header>
+<h1>$config.SITENAME</h1>
+<nav>
+<ul>
+$for title, view, values  in config.MENUITEMS:
+<li>
+$if urls.build(view, values) == urls.current_url():
+<span>$title</span>
+$else:
+<a href="$urls.build(view, values)">$title</a>
+$end
+</li>
+$end
+</ul>
+</nav>
+</header>
+
+<main>
+$def content():
+$end
+$content()
+</main>
+
+</body>
+</html>

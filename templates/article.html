@@ -1,0 +1,41 @@
+$extends("templates/base.html")
+$require(entry)
+
+$def title():
+$entry["title"]
+$end
+
+$(
+tags = db.select(
+'''
+SELECT tag.*
+FROM json_each({}) as tags
+JOIN source as tag
+ON tags.value = json_extract(tag.metadata, '$.slug')
+AND json_extract(tag.metadata, '$.type') = 'page'
+''',
+json.dumps(entry["tags"]))
+tag_slugs = [tag["slug"] for tag in tags]
+)
+
+$def content():
+<article>
+<h2>$entry["title"]</h2>
+
+$entry["date"]
+
+<aside>
+$for tag in tags:
+<a class="tag" href="$urls.build('page', {'slug': tag['slug']})">$tag["title"]</a>
+$end
+$for tag in entry["tags"]:
+$if tag not in tag_slugs:
+<span class="tag">$tag</span>
+$( warn(f"{entry.filename}: tag {tag!r} not found") )
+$end
+$end
+</aside>
+
+$entry.content
+</article>
+$end
