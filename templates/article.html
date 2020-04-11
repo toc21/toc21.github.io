@@ -12,7 +12,7 @@ SELECT tag.*
 FROM json_each({}) as tags
 JOIN source as tag
 ON tags.value = json_extract(tag.metadata, '$.slug')
-AND json_extract(tag.metadata, '$.type') = 'page'
+AND json_extract(tag.metadata, '$.type') = 'wiki'
 ''',
 json.dumps(entry["tags"]))
 tag_slugs = [tag["slug"] for tag in tags]
@@ -26,7 +26,7 @@ $entry["date"]
 
 <aside>
 $for tag in tags:
-<a class="tag" href="$urls.build('page', {'slug': tag['slug']})">$tag["title"]</a>
+<a class="tag" href="$urls.build('wiki', {'slug': tag['slug']})">$tag["title"]</a>
 $end
 $for tag in entry["tags"]:
 $if tag not in tag_slugs:

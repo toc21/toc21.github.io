@@ -7,11 +7,11 @@ $end
 
 
 $(
-pages = db.select("""
-SELECT page.*
-FROM source AS page
-WHERE json_extract(page.metadata, '$.type') = 'page'
-AND {} IN (SELECT value FROM json_each(page.metadata, '$.tags'))
+wikis = db.select("""
+SELECT wiki.*
+FROM source AS wiki
+WHERE json_extract(wiki.metadata, '$.type') = 'wiki'
+AND {} IN (SELECT value FROM json_each(wiki.metadata, '$.tags'))
 """, entry["slug"])
 )
 
@@ -35,7 +35,7 @@ SELECT tag.*
 FROM json_each({}) as tags
 JOIN source as tag
 ON tags.value = json_extract(tag.metadata, '$.slug')
-AND json_extract(tag.metadata, '$.type') = 'page'
+AND json_extract(tag.metadata, '$.type') = 'wiki'
 ''',
 json.dumps(entry["tags"]))
 tag_slugs = [tag["slug"] for tag in tags]
@@ -43,7 +43,7 @@ tag_slugs = [tag["slug"] for tag in tags]
 
 <aside>
 $for tag in tags:
-<a class="tag" href="$urls.build('page', {'slug': tag['slug']})">$tag["title"]</a>
+<a class="tag" href="$urls.build('wiki', {'slug': tag['slug']})">$tag["title"]</a>
 $end
 $for tag in entry["tags"]:
 $if tag not in tag_slugs:
@@ -53,13 +53,17 @@ $end
 $end
 </aside>
 
+$if "source" in entry:
+<a href="$entry["source"]">$entry["source"]</a>
+$end
+
 $entry.content
 
-$if pages:
+$if wikis:
 <h2>相关</h2>
 <ul>
-$for page in pages:
-<li><a href="$urls.build('page', {'slug': page['slug']})">$page["title"]</a></li>
+$for wiki in wikis:
+<li><a href="$urls.build('wiki', {'slug': wiki['slug']})">$wiki["title"]</a></li>
 $end
 </ul>
 $end
@@ -79,7 +83,7 @@ SELECT tag.*
 FROM json_each({}) as tags
 JOIN source as tag
 ON tags.value = json_extract(tag.metadata, '$.slug')
-AND json_extract(tag.metadata, '$.type') = 'page'
+AND json_extract(tag.metadata, '$.type') = 'wiki'
 ''',
 json.dumps(article["tags"]))
 tag_slugs = [tag["slug"] for tag in tags]
@@ -88,7 +92,7 @@ tag_slugs = [tag["slug"] for tag in tags]
 <aside>
 $for tag in tags:
 $if tag['slug'] != entry['slug']:
-<a class="tag" href="$urls.build('page', {'slug': tag['slug']})">$tag["title"]</a>
+<a class="tag" href="$urls.build('wiki', {'slug': tag['slug']})">$tag["title"]</a>
 $end
 $end
 $for tag in article["tags"]:
